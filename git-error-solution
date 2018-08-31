@@ -1,0 +1,7 @@
+error: You have not concluded your merge (MERGE_HEAD exists)
+
+Execute below command to resolve this conflict
+
+git fetch origin
+git reset --hard origin/master
+git pull
