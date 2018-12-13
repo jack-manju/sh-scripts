@@ -1,0 +1,281 @@
+###############################################################################################
+# LAMP setup for Ubuntu 16.04 Server                                                          #
+# Apache + PHP + Percona                                                                  #
+###############################################################################################
+
+# Update and prepare server
+apt update; apt -y upgrade
+apt -y install nano sudo curl wget git dnsutils lynx
+sudo hostname srv.zdb.bz
+sudo service hostname start
+
+# Pimp your bash
+cd /tmp
+sudo git clone git://github.com/KittyKatt/screenFetch.git screenfetch
+sudo cp screenfetch/screenfetch-dev /usr/bin/screenfetch
+sudo chmod 755 /usr/bin/screenfetch
+echo "if [ -f /usr/bin/screenfetch ]; then screenfetch; fi" >> ~/.bashrc
+source .bashrc
+
+# Setup webserver
+sudo apt -y install apache2 libapache2-mod-php php php-mcrypt php-mysql php-common
+sudo a2enmod rewrite
+
+# Move index.php to beginning of line
+sudo nano /etc/apache2/mods-enabled/dir.conf
+<IfModule mod_dir.c>
+DirectoryIndex index.php index.html index.cgi index.pl index.xhtml index.htm
+</IfModule>
+
+# Configure AWStats
+sudo apt -y install awstats
+temp=`grep -i sitedomain /etc/awstats/awstats.conf.local | wc -l`
+echo SiteDomain="srv.zdb.bz" >> /etc/awstats/awstats.conf.local
+
+# Disable Awstats from executing every 10 minutes. Put a hash in front of any line.
+sed -i 's/^[^#]/#&/' /etc/cron.d/awstats
+
+# Install database
+apt -y install expect percona-server-server
+
+# Setup virtual hosts
+printf '%s\n' '<VirtualHost *:80>' 'ServerName twisted.cloud' 'ServerAlias www.twisted.cloud' 'DocumentRoot /var/www/twisted.cloud/public' 'ErrorLog /var/www/twisted.cloud/logs/error.log' 'CustomLog /var/www/twisted.cloud/logs/requests.log combined' '</VirtualHost>' >/etc/apache2/sites-available/twisted.cloud.conf
+printf '%s\n' '<VirtualHost *:80>' 'ServerName zachbrowne.me' 'ServerAlias www.zachbrowne.me' 'DocumentRoot /var/www/zachbrowne.me/public' 'ErrorLog /var/www/zachbrowne.me/logs/error.log' 'CustomLog /var/www/zachbrowne.me/logs/requests.log combined' '</VirtualHost>' >/etc/apache2/sites-available/zachbrowne.me.conf
+printf '%s\n' '<VirtualHost *:80>' 'ServerName zdb.bz' 'ServerAlias www.zdb.bz' 'DocumentRoot /var/www/zdb.bz/public' 'ErrorLog /var/www/zdb.bz/logs/error.log' 'CustomLog /var/www/zdb.bz/logs/requests.log combined' '</VirtualHost>' >/etc/apache2/sites-available/zdb.bz.conf
+printf '%s\n' '<VirtualHost *:80>' 'ServerName crm.zdb.bz' 'DocumentRoot /var/www/crm.zdb.bz/public' 'ErrorLog /var/www/crm.zdb.bz/logs/error.log' 'CustomLog /var/www/crm.zdb.bz/logs/requests.log combined' '</VirtualHost>' >/etc/apache2/sites-available/crm.zdb.bz.conf
+printf '%s\n' '<VirtualHost *:80>' 'ServerName dev.zdb.bz' 'DocumentRoot /var/www/dev.zdb.bz/public' 'ErrorLog /var/www/dev.zdb.bz/logs/error.log' 'CustomLog /var/www/dev.zdb.bz/logs/requests.log combined' '</VirtualHost>' >/etc/apache2/sites-available/dev.zdb.bz.conf
+printf '%s\n' '<VirtualHost *:80>' 'ServerName default.systems' 'ServerAlias www.default.systems' 'DocumentRoot /var/www/default.systems/public' 'ErrorLog /var/www/default.systems/logs/error.log' 'CustomLog /var/www/default.systems/logs/requests.log combined' '</VirtualHost>' >/etc/apache2/sites-available/default.systems.conf
+printf '%s\n' '<VirtualHost *:80>' 'ServerName zeekzealand.com' 'ServerAlias www.zeekzealand.com' 'DocumentRoot /var/www/zeekzealand.com/public' 'ErrorLog /var/www/zeekzealand.com/logs/error.log' 'CustomLog /var/www/zeekzealand.com/logs/requests.log combined' '</VirtualHost>' >/etc/apache2/sites-available/zeekzealand.com.conf
+printf '%s\n' '<VirtualHost *:80>' 'ServerName zach.browne.consulting' 'DocumentRoot /var/www/zach.browne.consulting/public' 'ErrorLog /var/www/zach.browne.consulting/logs/error.log' 'CustomLog /var/www/zach.browne.consulting/logs/requests.log combined' '</VirtualHost>' >/etc/apache2/sites-available/zach.browne.consulting.conf
+printf '%s\n' '<VirtualHost *:80>' 'ServerName zach.li' 'ServerAlias www.zach.li' 'DocumentRoot /var/www/zach.li/public' 'ErrorLog /var/www/zach.li/logs/error.log' 'CustomLog /var/www/zach.li/logs/requests.log combined' '</VirtualHost>' >/etc/apache2/sites-available/zach.li.conf
+
+mkdir -p /var/www/{twisted.cloud,zachbrowne.me,zdb.bz,crm.zdb.bz,dev.zdb.bz,default.systems,zeekzealand.com,zach.browne.consulting,zach.li}/{public,logs}
+
+ln -s /etc/apache2/sites-available/twisted.cloud.conf /etc/apache2/sites-enabled/twisted.cloud.conf
+ln -s /etc/apache2/sites-available/zachbrowne.me.conf /etc/apache2/sites-enabled/zachbrowne.me.conf
+ln -s /etc/apache2/sites-available/zdb.bz.conf /etc/apache2/sites-enabled/zdb.bz.conf
+ln -s /etc/apache2/sites-available/crm.zdb.bz.conf /etc/apache2/sites-enabled/crm.zdb.bz.conf
+ln -s /etc/apache2/sites-available/dev.zdb.bz.conf /etc/apache2/sites-enabled/dev.zdb.bz.conf
+ln -s /etc/apache2/sites-available/default.systems.conf /etc/apache2/sites-enabled/default.systems.conf
+ln -s /etc/apache2/sites-available/zeekzealand.com.conf /etc/apache2/sites-enabled/zeekzealand.com.conf
+ln -s /etc/apache2/sites-available/zach.browne.consulting.conf /etc/apache2/sites-enabled/zach.browne.consulting.conf
+ln -s /etc/apache2/sites-available/zach.li.conf /etc/apache2/sites-enabled/zach.li.conf 
+
+# Fix permissions and ownership
+sudo find /var/www/*/{public,logs} -type d -exec chmod 755 {} \;
+sudo find /var/www/*/{public,logs} -type f -exec chmod 644 {} \; 
+sudo chown -R www-data:www-data /var/www/*/{public,logs}
+
+# Finally install extras
+sudo apt -y install php-mcrypt libnet-libidn-perl php-all-dev php-curl php-dev php-all-dev php-gd php-gmp php-opcache php-memcached php-xsl php-imagick php-snmp php-xmlrpc php-mbstring php-ssh2 php-xml php-json
+
+# Setup firewall
+sudo apt -y install ufw
+sudo ufw allow in "Apache Full"
+sudo ufw allow in "OpenSSH"
+sudo ufw enable
+
+# Secure shared memory
+sudo nano /etc/fstab
+tmpfs     /run/shm     tmpfs     defaults,noexec,nosuid     0     0
+
+# SSH Hardening - key based login, disable root login and change port
+sudo nano /etc/ssh/sshd_config
+Port <ENTER YOUR PORT>
+Protocol 2
+PermitRootLogin no
+DebianBanner no
+sudo service ssh restart
+
+# Apache SSL Hardening - disable SSL v2/v3 support
+sudo nano /etc/apache2/mods-available/ssl.conf
+SSLProtocol all -SSLv2 -SSLv3
+sudo service apache2 restart
+
+# Protect su by limiting access only to admin group
+sudo groupadd admin
+sudo usermod -a -G admin <YOUR ADMIN USERNAME>
+sudo dpkg-statoverride --update --add root admin 4750 /bin/su
+
+# Harden network with sysctl settings
+sudo nano /etc/sysctl.conf
+# IP Spoofing protection
+net.ipv4.conf.all.rp_filter = 1
+net.ipv4.conf.default.rp_filter = 1
+
+# Ignore ICMP broadcast requests
+net.ipv4.icmp_echo_ignore_broadcasts = 1
+
+# Disable source packet routing
+net.ipv4.conf.all.accept_source_route = 0
+net.ipv6.conf.all.accept_source_route = 0 
+net.ipv4.conf.default.accept_source_route = 0
+net.ipv6.conf.default.accept_source_route = 0
+
+# Ignore send redirects
+net.ipv4.conf.all.send_redirects = 0
+net.ipv4.conf.default.send_redirects = 0
+
+# Block SYN attacks
+net.ipv4.tcp_syncookies = 1
+net.ipv4.tcp_max_syn_backlog = 2048
+net.ipv4.tcp_synack_retries = 2
+net.ipv4.tcp_syn_retries = 5
+
+# Log Martians
+net.ipv4.conf.all.log_martians = 1
+net.ipv4.icmp_ignore_bogus_error_responses = 1
+
+# Ignore ICMP redirects
+net.ipv4.conf.all.accept_redirects = 0
+net.ipv6.conf.all.accept_redirects = 0
+net.ipv4.conf.default.accept_redirects = 0 
+net.ipv6.conf.default.accept_redirects = 0
+
+# Ignore Directed pings
+net.ipv4.icmp_echo_ignore_all = 1
+
+sudo sysctl -p
+
+#  Disable Open DNS Recursion and Remove Version Info  - BIND DNS Server
+sudo nano /etc/bind/named.conf.options
+# Options
+recursion no;
+version "Not Disclosed";
+sudo service bind9 restart
+
+# Prevent IP spoofing
+sudo nano /etc/host.conf
+order bind,hosts
+nospoof on
+
+# PHP Hardening
+sudo find / -name php.ini
+
+disable_functions = exec,system,shell_exec,passthru
+register_globals = Off
+expose_php = Off
+display_errors = Off
+track_errors = Off
+html_errors = Off
+magic_quotes_gpc = Off
+mail.add_x_header = Off
+session.name = NEWSESSID
+service apache2 restart
+
+# Restrict Apache information leakage
+sudo nano /etc/apache2/conf-available/security.conf
+ServerTokens Prod
+ServerSignature Off
+TraceEnable Off
+Header unset ETag
+Header always unset X-Powered-By
+FileETag None
+sudo service apache2 restart
+
+# Install ModSecurity on your server
+sudo apt -y install libxml2 libxml2-dev libxml2-utils libaprutil1 libaprutil1-dev
+sudo ln -s /usr/lib/x86_64-linux-gnu/libxml2.so.2 /usr/lib/libxml2.so.
+sudo apt -y install libapache-mod-security
+sudo mv /etc/modsecurity/modsecurity.conf-recommended /etc/modsecurity/modsecurity.conf
+sudo nano /etc/modsecurity/modsecurity.conf
+SecRuleEngine On
+SecServerSignature FreeOSHTTP
+SecRequestBodyLimit 16384000
+SecRequestBodyInMemoryLimit 16384000
+cd /tmp
+sudo wget -O SpiderLabs-owasp-modsecurity-crs.tar.gz https://github.com/SpiderLabs/owasp-modsecurity-crs/tarball/master
+sudo tar -zxvf SpiderLabs-owasp-modsecurity-crs.tar.gz
+sudo cp -R SpiderLabs-owasp-modsecurity-crs-*/* /etc/modsecurity/
+sudo rm SpiderLabs-owasp-modsecurity-crs.tar.gz
+sudo rm -R SpiderLabs-owasp-modsecurity-crs-*
+sudo mv /etc/modsecurity/modsecurity_crs_10_setup.conf.example /etc/modsecurity/modsecurity_crs_10_setup.conf
+cd /etc/modsecurity/base_rules
+for f in * ; do sudo ln -s /etc/modsecurity/base_rules/$f /etc/modsecurity/activated_rules/$f ; done
+cd /etc/modsecurity/optional_rules
+for f in * ; do sudo ln -s /etc/modsecurity/optional_rules/$f /etc/modsecurity/activated_rules/$f ; done 
+sudo nano /etc/apache2/conf-available/mod-security.conf
+Include "/etc/modsecurity/activated_rules/*.conf"
+sudo a2enmod headers
+sudo a2enconf mod-security
+sudo service apache2 restart
+
+# Install mod_evasive
+sudo apt -y install libapache2-mod-evasive
+sudo mkdir /var/log/mod_evasive
+sudo chown www-data:www-data /var/log/mod_evasive/
+sudo nano /etc/apache2/conf-available/mod-evasive.conf
+<ifmodule mod_evasive20.c>
+   DOSHashTableSize 3097
+   DOSPageCount  2
+   DOSSiteCount  50
+   DOSPageInterval 1
+   DOSSiteInterval  1
+   DOSBlockingPeriod  10
+   DOSLogDir   /var/log/mod_evasive
+   DOSEmailNotify  EMAIL@DOMAIN.com
+   DOSWhitelist   127.0.0.1
+</ifmodule>
+sudo ln -s /etc/alternatives/mail /bin/mail/
+sudo a2enconf mod-evasive
+sudo service apache2 restart
+
+# Scan logs and ban suspicious hosts - DenyHosts and Fail2Ban
+sudo apt -y install denyhosts fail2ban
+sudo nano /etc/denyhosts.conf
+ADMIN_EMAIL = root@localhost
+SMTP_HOST = localhost
+SMTP_PORT = 25
+#SMTP_USERNAME=foo
+#SMTP_PASSWORD=bar
+SMTP_FROM = DenyHosts nobody@localhost
+#SYSLOG_REPORT=YES 
+
+sudo nano /etc/fail2ban/jail.conf
+[sshd]
+
+enabled  = true
+port     = ssh
+filter   = sshd
+logpath  = /var/log/auth.log
+maxretry = 3
+destemail = zachbrowne@gmail.com
+action = %(action_mwl)s
+sudo service fail2ban restart
+
+# Intrusion Detection - PSAD
+sudo apt -y install psad
+sudo nano /etc/psad/psad.conf
+EMAIL_ADDRESSES
+HOSTNAME
+ENABLE_AUTO_IDS
+ENABLE_AUTO_IDS_EMAILS
+psad -R
+psad --sig-update
+psad -H
+
+# Check for rootkits - RKHunter and CHKRootKit
+sudo apt -y rkhunter chkrootkit
+sudo chkrootkit
+sudo rkhunter --update
+sudo rkhunter --propupd
+sudo rkhunter --check
+
+# Scan Open Ports
+sudo apt -y install nmap
+nmap -v -sT localhost
+sudo nmap -v -sS localhost
+
+# Analyse system LOG files - LogWatch
+sudo apt -y install logwatch libdate-manip-perl
+sudo logwatch | less
+sudo logwatch --mailto mail@domain.com --output mail --format html --range 'between -7 days and today' 
+
+# SELinux - Apparmor
+sudo apt -y install apparmor apparmor-profiles
+sudo apparmor_status
+
+# Audit your system security - Tiger and Tripwire
+sudo apt -y install tiger tripwire
+sudo tiger
+sudo less /var/log/tiger/security.report.*
