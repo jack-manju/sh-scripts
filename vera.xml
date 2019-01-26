@@ -1,7 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- Created with Liquid Technologies Online Tools 1.0 (https://www.liquid-technologies.com) -->
-<detailedreport xmlns="https://www.veracode.com/schema/reports/export/1.0" xsi:schemaLocation="https://www.veracode.com/schema/reports/export/1.0 schema.xsd" report_format_version="string" app_name="string" app_id="-2888" sandbox_name="string" sandbox_id="-9105" first_build_submitted_date="string" version="string" build_id="-2522" vendor="string" submitter="string" platform="string" assurance_level="-6238" business_criticality="8468" generation_date="string" veracode_level="string" total_flaws="9332" flaws_not_mitigated="-3860" teams="string" life_cycle_stage="string" planned_deployment_date="string" last_update_time="string" is_latest_build="0" policy_name="string" policy_version="4919" policy_compliance_status="string" policy_rules_status="string" grace_period_expired="false" scan_overdue="string" any_type_scan_due="string" business_owner="string" business_unit="string" tags="string" legacy_scan_engine="0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-  <static-analysis rating="string" score="-7412" mitigated_rating="string" mitigated_score="4120" submitted_date="string" published_date="string" next_scan_due="string" analysis_size_bytes="3864" engine_version="string" dynamic_scan_type="da" scan_exit_status_id="1243" scan_exit_status_desc="string" version="string">
+<detailedreport 
+xmlns="https://www.veracode.com/schema/reports/export/1.0" 
+xsi:schemaLocation="https://www.veracode.com/schema/reports/export/1.0 schema.xsd" 
+report_format_version="string" 
+app_name="string" 
+app_id="-2888" 
+sandbox_name="string" 
+sandbox_id="-9105" 
+first_build_submitted_date="string" 
+version="string" 
+build_id="-2522" vendor="string" submitter="string" platform="string" assurance_level="-6238" business_criticality="8468" 
+generation_date="string" veracode_level="string" total_flaws="9332" flaws_not_mitigated="-3860" teams="string" life_cycle_stage="string" 
+planned_deployment_date="string" last_update_time="string" is_latest_build="0" policy_name="string" policy_version="4919" policy_compliance_status="string"
+ policy_rules_status="string" grace_period_expired="false" scan_overdue="string" any_type_scan_due="string" business_owner="string" business_unit="string" 
+ tags="string" legacy_scan_engine="0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <static-analysis rating="string" score="-7412" mitigated_rating="string" mitigated_score="4120" submitted_date="string" published_date="string" 
+  next_scan_due="string" analysis_size_bytes="3864" engine_version="string" dynamic_scan_type="da" scan_exit_status_id="1243" scan_exit_status_desc="string" 
+  version="string">
     <modules>
       <module name="string" compiler="string" os="string" architecture="string" score="275616641" numflawssev0="1225903925" numflawssev1="596875900" numflawssev2="1224954737" numflawssev3="650283818" numflawssev4="78301549" numflawssev5="1735403010" domain="string" />
       <module name="string" compiler="string" os="string" architecture="string" score="1386990968" numflawssev0="4100572780" numflawssev1="3352097420" numflawssev2="1762053282" numflawssev3="2648770755" numflawssev4="2512104896" numflawssev5="1744581355" target_url="string" domain="string" />
