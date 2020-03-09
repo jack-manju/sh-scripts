@@ -2,8 +2,7 @@ pipeline {
     agent any
 	options {
 		disableConcurrentBuilds()
-		quietPeriod 480
-		timestamps
+		quietPeriod 300
 	}
     stages {
         stage('checkout scm') { 
