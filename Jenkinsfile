@@ -1,12 +1,12 @@
 pipeline {
     agent any
-    triggers {
-        githubPullRequests events: [Open()], preStatus: true, skipFirstRun: true, spec: 'H/20 * * * *', triggerMode: 'CRON'
-    }
+	options {
+		sh 'sleep 300'
+	}
     stages {
         stage('checkout scm') { 
             steps {
-			 sh 'sleep 300'
+	
              checkout scm
              }   
        }
