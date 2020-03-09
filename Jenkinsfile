@@ -1,7 +1,9 @@
 pipeline {
     agent any
 	options {
-		sh 'sleep 300'
+		disableConcurrentBuilds()
+		quietPeriod 480
+		timestamps
 	}
     stages {
         stage('checkout scm') { 
