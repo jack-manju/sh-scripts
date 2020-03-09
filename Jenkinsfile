@@ -6,6 +6,7 @@ pipeline {
     stages {
         stage('checkout scm') { 
             steps {
+			 sh 'sleep 300'
              checkout scm
              }   
        }
